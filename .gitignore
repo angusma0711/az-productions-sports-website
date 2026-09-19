@@ -1,0 +1,9 @@
+# Generated review materials and local document-rendering files
+outputs/
+
+# System files
+.DS_Store
+
+# Local editor and dependency folders
+.vscode/
+node_modules/
