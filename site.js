@@ -7,7 +7,8 @@
   for (const element of labelledElements) element.dataset.zhLabel = element.getAttribute('aria-label');
 
   const button = document.querySelector('[data-language-toggle]');
-  const saved = localStorage.getItem('az-site-language');
+  let saved;
+  try { saved = localStorage.getItem('az-site-language'); } catch (_) { saved = null; }
   let language = saved === 'en' ? 'en' : 'zh-HK';
   let updateGalleryPause = () => {};
 
@@ -31,7 +32,7 @@
 
   button.addEventListener('click', () => {
     language = language === 'en' ? 'zh-HK' : 'en';
-    localStorage.setItem('az-site-language', language);
+    try { localStorage.setItem('az-site-language', language); } catch (_) { /* The language switch still works when storage is disabled. */ }
     render();
   });
   render();
@@ -81,7 +82,9 @@
 
     pauseButton.addEventListener('click', () => { paused = !paused; updateGalleryPause(); start(); });
     document.addEventListener('visibilitychange', start);
-    reducedMotion.addEventListener('change', () => { if (reducedMotion.matches) paused = true; updateGalleryPause(); start(); });
+    const onMotionChange = () => { if (reducedMotion.matches) paused = true; updateGalleryPause(); start(); };
+    if (reducedMotion.addEventListener) reducedMotion.addEventListener('change', onMotionChange);
+    else if (reducedMotion.addListener) reducedMotion.addListener(onMotionChange);
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(([entry]) => { inView = entry.isIntersecting; start(); }, { threshold: 0.2 }).observe(gallery);
     }
